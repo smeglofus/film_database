@@ -1,0 +1,49 @@
+{% extends '/base.html' %}
+
+{% block styles %}
+  {{ super() }}
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Nunito+Sans:300,400,700">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Poppins:300,400,700">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Poppins:300,400,700">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.14.0/css/all.min.css" integrity="sha512-1PKOgIY59xJ8Co8+NE6FZ+LOAZKjy+KY8iq0G4B3CyeY6wYHN3yt9PW0XpSriVlkMXe40PTKnXrLnZ9+fkDaog==" crossorigin="anonymous" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+{% endblock %}
+
+
+{% block content %}
+<div class="container">
+  <h1 class="heading">Mých top {{ pocet }} filmů.</h1>
+    <div class="container text-center add">
+<a href="{{ url_for('add') }}" class="button">Přidej film</a>
+</div>
+
+ {% for film in films %}
+  <div class="card" >
+    <div class="front" style="background-image: url('{{film.img_url}}');">
+        <p class="large" style="color: white">{{film.rating}}</p>
+    </div>
+    <div class="back">
+      <div>
+    <div class="title">{{film.title}} <span class="release_date">{{film.year}}</span></div>
+        <div class="rating">
+            <label style="color: blackgit">{{film.rating}}</label>
+          <i class="fas fa-star star"></i>
+        </div>
+          <p class="review">{{film.review}}</p>
+        <p class="overview">
+             {{film.description}}
+        </p>
+
+        <a href="{{ url_for('edit', id=film.id) }}" class="button">Update</a>
+        <a href="{{ url_for('delete', id=film.id) }}" class="button delete-button">Delete</a>
+
+      </div>
+    </div>
+  </div>
+    {% endfor %}
+</div>
+<div class="container text-center add">
+<a href="{{ url_for('add') }}" class="button">Přidej film</a>
+</div>
+
+{% endblock %}

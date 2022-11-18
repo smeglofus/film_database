@@ -1,0 +1,26 @@
+{% extends '/base.html' %}
+
+{% block styles %}
+  {{ super() }}
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Nunito+Sans:300,400,700">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Poppins:300,400,700">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="content">
+
+
+
+<div class="container">
+<div class="box">
+    <h4 style="color: white">{{movie.title}}</h4>
+
+    <form action="{{ url_for('edit', id=movie.id) }}" method="post">
+        <input type="text" name="edit" placeholder="Jaké dáš hodnocení ?" required="required"/>
+        <button type="submit" class="btn btn-primary btn-block btn-large">Uprav</button>
+    </form>
+</div>
+</div>
+</div>
+{% endblock %}

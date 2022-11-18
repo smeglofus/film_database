@@ -1,0 +1,24 @@
+{% extends '/base.html' %}
+
+{% block styles %}
+  {{ super() }}
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Nunito+Sans:300,400,700">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Poppins:300,400,700">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+{% endblock %}
+
+{% block content %}
+
+
+
+<div class="container">
+<div class="box">
+    <h1>Přidej film</h1>
+
+    <form action="{{ url_for('add') }}" method="post">
+        <input type="text" name="find" placeholder="Zadej název filmu" required="required"/>
+        <button type="submit" class="btn btn-primary btn-block btn-large">Najdi</button>
+    </form>
+</div>
+</div>
+{% endblock %}

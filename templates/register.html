@@ -1,0 +1,14 @@
+{% extends "/base.html" %}
+{% block content %}
+
+<div class="box">
+	<h1>Zaregistruj se<h1>
+    <form action="{{ url_for('register') }}" method="post">
+    	<input type="text" name="name" placeholder="Jméno" required="required" />
+		<input type="email" name="email" placeholder="Email" required="required" />
+        <input type="password" name="password" placeholder="Heslo" required="required" />
+        <button type="submit" class="btn btn-primary btn-block btn-large">Zaregistruj se</button>
+    </form>
+</div>
+
+{% endblock %}
