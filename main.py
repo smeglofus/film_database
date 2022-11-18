@@ -90,6 +90,8 @@ class RateMovieForm(FlaskForm):
 def home():
     all_films = db.session.query(Film).order_by(Film.rating.desc()).all()
     pocet = len(all_films)
+    if not current_user:
+        flash("Pro přidání se musíš přihlásit")
     return render_template("indexa.html",films=all_films,pocet=pocet)
 
 

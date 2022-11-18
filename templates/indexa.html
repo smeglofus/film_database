@@ -14,7 +14,14 @@
 <div class="container">
   <h1 class="heading">Mých top {{ pocet }} filmů.</h1>
     <div class="container text-center add">
+
+{% if current_user.is_authenticated %}
 <a href="{{ url_for('add') }}" class="button">Přidej film</a>
+        {% endif %}
+
+        {% if not current_user.is_authenticated %}
+        <a href="#" class="button" onClick="alert('Pro přidání filmu se musíš přihlásit')">Přidej film</a>
+        {% endif %}
 </div>
 
  {% for film in films %}
@@ -33,17 +40,20 @@
         <p class="overview">
              {{film.description}}
         </p>
-
+        {% if current_user.is_authenticated %}
         <a href="{{ url_for('edit', id=film.id) }}" class="button">Update</a>
         <a href="{{ url_for('delete', id=film.id) }}" class="button delete-button">Delete</a>
+        {% endif %}
+        {% if not current_user.is_authenticated %}
+        <a onClick="alert('Pro přidání filmu se musíš přihlásit')" class="button">Update</a>
+        <a onClick="alert('Pro smazání filmu se musíš přihlásit')" class="button delete-button">Delete</a>
+        {% endif %}
 
       </div>
     </div>
   </div>
     {% endfor %}
 </div>
-<div class="container text-center add">
-<a href="{{ url_for('add') }}" class="button">Přidej film</a>
-</div>
+
 
 {% endblock %}
