@@ -92,6 +92,9 @@ def home():
     pocet = len(all_films)
     return render_template("indexa.html",films=all_films,pocet=pocet)
 
+
+
+#user block
 @app.route('/register', methods=["GET", "POST"])
 def register():
     if request.form:
@@ -137,17 +140,9 @@ def logout():
     logout_user()
     return redirect(url_for("home"))
 
-@app.route('/download')
-def download():
-    if current_user:
-            return send_from_directory(directory="static",path="files/cheat_sheet.pdf")
-    else:
-        return render_template("login.html")
 
 
-
-
-
+# film block
 @app.route("/edit/<int:id>", methods=["GET", "POST"])
 def edit(id):
     film = Film.query.get(id)
