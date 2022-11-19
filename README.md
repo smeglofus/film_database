@@ -4,7 +4,7 @@ Film database using Python, Flask, SQLalchemy, Selenium,...
 
 
 Film database is an web application written in Python using the Flask web framework. Bootstrap are used in templates.  Icons come from Bootstrap. 
-Film data are from https://www.themoviedb.org/ and scrapped from CSFD with BeautifulSoup4.
+Film data are from [themoviedb.org](https://www.themoviedb.org/) and scrapped from [ČSFD](https://www.csfd.cz/) with BeautifulSoup4.
 
 
 If you sign up, you can add films to your users database, which will be saved in SQLalchemy database. 
