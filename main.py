@@ -1,8 +1,8 @@
 import requests
+import sqlalchemy.exc
 import werkzeug.security
 from flask import Flask, render_template, request, url_for, redirect, flash, send_from_directory
 from werkzeug.security import generate_password_hash, check_password_hash
-from flask_sqlalchemy import SQLAlchemy
 from flask_login import UserMixin, login_user, LoginManager, login_required, current_user, logout_user
 from flask import Flask, render_template, redirect, url_for, request
 from flask_bootstrap import Bootstrap
@@ -18,7 +18,6 @@ from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.common.keys import Keys
 
 def find_score(look_for):
     options = Options()
@@ -55,6 +54,11 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 
 
+user_film = db.Table("user_film",
+                     db.Column("user_id", db.Integer, db.ForeignKey("user.id")),
+                     db.Column("film_id", db.Integer, db.ForeignKey("film.id"))
+                     )
+
 class Film(db.Model):
     id = db.Column(db.Integer, primary_key=True, unique=True)
     title = db.Column(db.String(80), unique=True, nullable=False)
@@ -63,6 +67,7 @@ class Film(db.Model):
     rating = db.Column(db.Integer, nullable=True)
     review = db.Column(db.String(1000), nullable=True, unique=False)
     img_url = db.Column(db.String, nullable=False)
+
 
 
 @login_manager.user_loader
@@ -74,7 +79,7 @@ class User(UserMixin, db.Model):
     email = db.Column(db.String(100), unique=True)
     password = db.Column(db.String(100))
     name = db.Column(db.String(1000))
-
+    following = db.relationship("Film", secondary=user_film, backref="following")
     def __repr__(self):
         return self.name
 
@@ -89,10 +94,17 @@ class RateMovieForm(FlaskForm):
 @app.route("/")
 def home():
     all_films = db.session.query(Film).order_by(Film.rating.desc()).all()
-    pocet = len(all_films)
-    if not current_user:
-        flash("Pro přidání se musíš přihlásit")
-    return render_template("indexa.html",films=all_films,pocet=pocet)
+    all_films_id = db.session.query(Film.id).distinct()
+    try:
+        seznam = db.session.query(user_film)
+        user_film_list = []
+        for film in seznam:
+            if film[0] == current_user.id:
+                user_film_list.append(film[1])
+    except AttributeError:
+        user_film_list = all_films_id
+
+    return render_template("indexa.html",films=all_films,user_films=user_film_list)
 
 
 
@@ -154,10 +166,10 @@ def edit(id):
         return redirect(url_for("home"))
     return render_template("edit.html",movie=film)
 
+#TODO udelat aby se mazalo jenom z databáze uzivatele a  ne z centrální filmové az to bude tak udelat vyhledávání ?
 @app.route("/delete/<int:id>", methods=["GET", "POST"])
 def delete(id):
-    Film.query.filter(Film.id == id).delete()
-    db.session.commit()
+    db.engine.execute(f"delete from user_film where film_id = {id} and user_id = {current_user.id}")
     return redirect(url_for("home"))
 
 @app.route("/add", methods=["GET", "POST"])
@@ -168,6 +180,7 @@ def add():
         "language": "cs-CZ",
         "query": request.form.get("find"),
     }
+
     if request.form :
         data = requests.get(BASE_WEB, params=parameters)
         film_data = data.json()
@@ -175,28 +188,44 @@ def add():
             all_films.append(film)
         print(all_films)
         return render_template("select.html",films=all_films)
+
+
     return render_template("add.html")
+
+
 
 
 @app.route("/find/<int:id>", methods=["GET", "POST"])
 def add_film(id):
-    find_movie = f"https://api.themoviedb.org/3/movie/{id}?"
-    parameters = {
-        "api_key": "df1513738a434dad057e9d9937a2b160",
-        "language": "cs-CZ",
-        "movie_id": id
-    }
-    data = requests.get(find_movie, params=parameters)
-    film_data = data.json()
-    score = find_score(look_for=film_data["original_title"])
-    year = film_data["release_date"].split("-")
-    film = Film(id=id, title=film_data["original_title"], year=year[0],
-                img_url=f"https://image.tmdb.org/t/p/w500//{film_data['poster_path']}",
-                description=film_data["overview"],rating=score)
-    db.session.add(film)
-    db.session.commit()
-    return redirect(url_for("edit",id=id))
+    is_in_database = Film.query.get(id)
 
+    if is_in_database:
+        film = Film.query.get(id)
+        current_user.following.append(film)
+        print("OK")
+        db.session.commit()
+
+    elif not is_in_database:
+        find_movie = f"https://api.themoviedb.org/3/movie/{id}?"
+        parameters = {
+            "api_key": "df1513738a434dad057e9d9937a2b160",
+            "language": "cs-CZ",
+            "movie_id": id
+        }
+        data = requests.get(find_movie, params=parameters)
+        film_data = data.json()
+        score = find_score(look_for=film_data["original_title"])
+        year = film_data["release_date"].split("-")
+        film = Film(id=id, title=film_data["original_title"], year=year[0],
+                    img_url=f"https://image.tmdb.org/t/p/w500//{film_data['poster_path']}",
+                    description=film_data["overview"], rating=score)
+        current_user.following.append(film)
+        db.session.add(film)
+        db.session.commit()
+        print("Proslo to druhe")
+
+
+    return redirect(url_for("edit",id=id))
 
 
 

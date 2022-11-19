@@ -2,10 +2,12 @@
 <html>
 
 <head>
+    {% block head %}
+
+{% endblock %}
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title></title>
     <title>Filmová databáze</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <link rel="stylesheet" href="{{ url_for('static', filename='/css/styles.css')}}">
@@ -15,7 +17,7 @@
 
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
     {% if current_user.is_authenticated %}
-  <a class="navbar-brand" href="{{ url_for('home') }}">Filmová databáze uživatele {{current_user.name}}</a>
+  <a class="navbar-brand" href="{{ url_for('home') }}">Filmová databáze uživatele <span style="color:#5DADE2">{{current_user.name}}</span></a>
     {% else %}
     <a class="navbar-brand" href="{{ url_for('home') }}">Filmová databáze</a>
     {% endif %}
@@ -48,6 +50,7 @@
         {% endfor %}
     {% endif %}
 {% endwith %}
+
        {% block content %}
        {% endblock %}
 

@@ -7,12 +7,13 @@
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Poppins:300,400,700">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.14.0/css/all.min.css" integrity="sha512-1PKOgIY59xJ8Co8+NE6FZ+LOAZKjy+KY8iq0G4B3CyeY6wYHN3yt9PW0XpSriVlkMXe40PTKnXrLnZ9+fkDaog==" crossorigin="anonymous" />
   <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+
 {% endblock %}
 
 
 {% block content %}
 <div class="container">
-  <h1 class="heading">Mých top {{ pocet }} filmů.</h1>
+  <h1 class="heading">Mé nejoblíbenější filmy.</h1>
     <div class="container text-center add">
 
 {% if current_user.is_authenticated %}
@@ -23,8 +24,10 @@
         <a href="#" class="button" onClick="alert('Pro přidání filmu se musíš přihlásit')">Přidej film</a>
         {% endif %}
 </div>
-
+{% if current_user.is_authenticated %}
  {% for film in films %}
+    {% if film.id in user_films %}
+
   <div class="card" >
     <div class="front" style="background-image: url('{{film.img_url}}');">
         <p class="large" style="color: white">{{film.rating}}</p>
@@ -52,7 +55,14 @@
       </div>
     </div>
   </div>
+    {% endif %}
     {% endfor %}
+    {% else %}
+    <h1 class="heading" style="margin: 175px auto">Pro shlédnutí seznamu se musíš <a href="{{ url_for('login') }}">Přihlásit</a>.</h1>
+
+    {% endif %}
+
+
 </div>
 
 
