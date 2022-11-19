@@ -7,9 +7,6 @@ from flask_login import UserMixin, login_user, LoginManager, login_required, cur
 from flask import Flask, render_template, redirect, url_for, request
 from flask_bootstrap import Bootstrap
 from flask_sqlalchemy import SQLAlchemy
-from flask_wtf import FlaskForm
-from wtforms import StringField, SubmitField
-from wtforms.validators import DataRequired
 import requests
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
@@ -20,6 +17,10 @@ from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
 def find_score(look_for):
+    """
+    :param look_for: exact name of film you look for
+    :return: scrapped score of film on CSFD
+    """
     options = Options()
     options.add_experimental_option("detach", True)
 
@@ -43,6 +44,7 @@ def find_score(look_for):
         driver.quit()
     return rating
 
+#app settings
 app = Flask(__name__)
 login_manager = LoginManager()
 login_manager.init_app(app)
@@ -54,11 +56,11 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 
 
+# M:M relationship database
 user_film = db.Table("user_film",
                      db.Column("user_id", db.Integer, db.ForeignKey("user.id")),
                      db.Column("film_id", db.Integer, db.ForeignKey("film.id"))
                      )
-
 class Film(db.Model):
     id = db.Column(db.Integer, primary_key=True, unique=True)
     title = db.Column(db.String(80), unique=True, nullable=False)
@@ -84,15 +86,12 @@ class User(UserMixin, db.Model):
         return self.name
 
 
-class AddMovie(FlaskForm):
-    nazev = StringField("Zadej název filmu")
-    submit = SubmitField("Okej")
-class RateMovieForm(FlaskForm):
-    review = StringField("Zadej receneci")
-    submit = SubmitField("Done")
-
 @app.route("/")
 def home():
+    """
+    Home page rendered. Try: make current_user film list. If there is no current_user, create list from DB
+    :return: homepage with film list
+    """
     all_films = db.session.query(Film).order_by(Film.rating.desc()).all()
     all_films_id = db.session.query(Film.id).distinct()
     try:
@@ -111,6 +110,10 @@ def home():
 #user block
 @app.route('/register', methods=["GET", "POST"])
 def register():
+    """
+    register new user
+    :return: redirect to secrets
+    """
     if request.form:
         if db.session.query(User).filter_by(email=request.form.get("email")).first():
             flash("Email je už obsazený, zadej jiný!")
@@ -125,40 +128,47 @@ def register():
             db.session.commit()
             print(new_user.name)
             login_user(new_user)
-            return redirect(url_for("secrets",name=new_user.name))
+            return render_template("secrets.html")
 
     return render_template("register.html")
 
 @app.route('/login', methods=["GET", "POST"])
 def login():
+    """
+    login user
+    :return: redirect to secrets html
+    """
     if request.form:
         user = db.session.query(User).filter_by(email=request.form.get("email")).first()
         if user:
             if check_password_hash(pwhash=user.password,password=request.form.get("password")):
                 login_user(user)
-                return redirect(url_for("secrets",current_user=user))
+                return render_template("secrets.html")
             else:
                 flash("Špatné heslo !")
         else:flash("Zadej správný email.")
 
     return render_template("login.html")
 
-@app.route('/secrets', methods=["GET", "POST"])
-def secrets():
-    welcome = current_user
-    return render_template("secrets.html",current_user=welcome)
-
 @app.route('/logout')
 @login_required
 def logout():
+    """
+    log out user
+    :return: redirect to home
+    """
     logout_user()
     return redirect(url_for("home"))
-
 
 
 # film block
 @app.route("/edit/<int:id>", methods=["GET", "POST"])
 def edit(id):
+    """
+
+    :param id: id of film in database Film you want to edit review
+    :return: edited film, redirect to home
+    """
     film = Film.query.get(id)
     if request.form:
         film.review = request.form.get("edit")
@@ -166,14 +176,22 @@ def edit(id):
         return redirect(url_for("home"))
     return render_template("edit.html",movie=film)
 
-#TODO udelat aby se mazalo jenom z databáze uzivatele a  ne z centrální filmové az to bude tak udelat vyhledávání ?
 @app.route("/delete/<int:id>", methods=["GET", "POST"])
 def delete(id):
+    """
+    delete film in users film database
+    :param id: id of film
+    :return: redirect to home
+    """
     db.engine.execute(f"delete from user_film where film_id = {id} and user_id = {current_user.id}")
     return redirect(url_for("home"))
 
 @app.route("/add", methods=["GET", "POST"])
 def add():
+    """
+    Ask you to type in a film you want to look for. Dont have to be exactly.
+    :return: Redirect to select . Get list of films by your typed name.
+    """
     all_films = []
     parameters = {
         "api_key": "df1513738a434dad057e9d9937a2b160",
@@ -192,11 +210,13 @@ def add():
 
     return render_template("add.html")
 
-
-
-
 @app.route("/find/<int:id>", methods=["GET", "POST"])
 def add_film(id):
+    """
+    select film by click on hrefs
+    :param id: id of film you choosed
+    :return: film added to database, render edit page
+    """
     is_in_database = Film.query.get(id)
 
     if is_in_database:
