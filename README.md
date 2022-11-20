@@ -16,9 +16,7 @@ If you sign up, you can add films to your users database, which will be saved in
 ### How to run:
 1. Download film_database repo
 2. Install dependencies (find them in requirements.txt file or writen bellow)
-3. Run Main.py
-
-You should see output similar to this:
+3. Run Main.py, than should see output similar to this:
 ```shell
  * Serving Flask app 'main'
  * Debug mode: on
@@ -30,6 +28,9 @@ Press CTRL+C to quit
  * Debugger PIN: ***-***-***
 ```
 Now you´ll be able to open the Film database application in your web browser by following the URL printed out in the last screen (* Running on http://127.0.0.1:5000). 
+
+
+
 
 
 
