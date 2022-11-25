@@ -1,6 +1,6 @@
 # film_database
 
-You can try this [there](http://smeglofus.pythonanywhere.com/)
+You can try this app here: [http://smeglofus.pythonanywhere.com/](http://smeglofus.pythonanywhere.com/)
 
 
 
