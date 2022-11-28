@@ -21,6 +21,7 @@
     {% else %}
     <a class="navbar-brand" href="{{ url_for('home') }}">Filmová databáze</a>
     {% endif %}
+    <a class="navbar-brand" href="{{ url_for('home') }}">Statistiky</a>
   <div class="collapse navbar-collapse">
     <ul class="navbar-nav ml-auto">
       <li class="nav-item">
@@ -34,9 +35,11 @@
         <a class="nav-link" href="{{ url_for('register') }}">Register</a>
       </li>
         {% endif %}
+        {% if current_user.is_authenticated %}
 <li class="nav-item">
         <a class="nav-link" href="{{ url_for('logout') }}">Log Out</a>
       </li>
+        {% endif %}
     </ul>
 
 
