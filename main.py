@@ -249,8 +249,25 @@ def add_film(id):
 
 
 
+@app.route("/stats")
+def stats():
+    most_add_movies = db.engine.execute(f"SELECT count(film_id) as f, film_id FROM user_film GROUP BY film_id ORDER by f DESC limit 5")
+    for movie in most_add_movies.all():
+        film = Film.query.get(movie[1])
+        print(f"Počet {movie[0]} a jméno(id) {film.title}")
+
+    return render_template("stats.html")
 
 
+
+
+#TODO udělat koláčový graf , naučit se jak udělat graf z SQL
+"""
+1. zjistit jak získat data z databáze
+2. zjistit jak udělat vizualizaci dat
+3. stránku nastylovat tak aby tam bylo možné vložit statistiky, koláče a tak
+
+"""
 
 
 

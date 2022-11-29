@@ -1,0 +1,23 @@
+{% extends '/base.html' %}
+{% block head %}
+<style>
+html, body {
+    height: 100%;
+}
+</style>
+{% endblock %}
+
+{% block styles %}
+  {{ super() }}
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Nunito+Sans:300,400,700">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Poppins:300,400,700">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+{% endblock %}
+
+
+
+{% block content %}
+<div class="container">
+<h1>Tady budou statistiky</h1>
+</div>
+{% endblock %}
