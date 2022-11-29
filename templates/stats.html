@@ -12,6 +12,7 @@ html, body {
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Nunito+Sans:300,400,700">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Poppins:300,400,700">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 {% endblock %}
 
 
@@ -19,5 +20,17 @@ html, body {
 {% block content %}
 <div class="container">
 <h1>Tady budou statistiky</h1>
+  <p style="color: white;">
+    Zatím je tu top 5 filmů
+  </p>
+  <ul>
+  {% for i in range(5) %}
+    <li style="color: grey;">
+      Film <span style="color: orange;">{{ names[i] }}</span> je ve <span style="color: green;">{{ times[i] }}</span> seznamech.
+      </li>
+  {% endfor %}
+</ul>
 </div>
+
+
 {% endblock %}
