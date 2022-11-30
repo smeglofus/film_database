@@ -53,13 +53,13 @@
   </p>
    <div id="top_x_div" style="width: 600px; height: 600px; text-align: center; margin: 100px;">
    </div>
-  <ul>
-  {% for i in range(5) %}
+  <ol>
+  {% for uzivatel in uzivatele %}
     <li style="color: grey;">
-      Film <span style="color: orange;">{{ names[i] }}</span> je ve <span style="color: green;">{{ times[i] }}</span> seznamech.
+      Uživatel <a href="{{ url_for('list', id=uzivatel[2]) }}"> {{ uzivatel[0] }} </a> má v databázi <span style="color: green;">{{ uzivatel[1] }}</span> filmů.
       </li>
   {% endfor %}
-</ul>
+</ol>
 </div>
 
 

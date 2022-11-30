@@ -100,6 +100,7 @@ def home():
         for film in seznam:
             if film[0] == current_user.id:
                 user_film_list.append(film[1])
+        print(user_film_list)
     except AttributeError:
         user_film_list = all_films_id
 
@@ -242,7 +243,6 @@ def add_film(id):
         current_user.following.append(film)
         db.session.add(film)
         db.session.commit()
-        print("Proslo to druhe")
 
 
     return redirect(url_for("edit",id=id))
@@ -251,28 +251,46 @@ def add_film(id):
 
 @app.route("/stats")
 def stats():
+
+    # sežeň filmy z databáze
     times = []
     names = []
     most_add_movies = db.engine.execute(f"SELECT count(film_id) as f, film_id FROM user_film GROUP BY film_id ORDER by f DESC limit 5")
     for movie in most_add_movies.all():
         film = Film.query.get(movie[1])
-        print(f"Počet {movie[0]} a jméno(id) {film.title}")
         times.append(movie[0])
         names.append(film.title)
-    print(times)
-    print(names)
 
-    return render_template("stats.html",times=times,names=names)
+    #sežeň počet uživatelů s alespoň 1 filmem v databázi.
+    uzivatele = []
+    users = db.engine.execute(f"SELECT count(user_id) as filmu, user_id FROM user_film GROUP BY user_id ORDER by filmu DESC")
+    for user in users.all():
+        this_user = User.query.get(user[1])
+        uzivatele.append((this_user.name, user[0], user[1]))
+    return render_template("stats.html",times=times,names=names, uzivatele=uzivatele)
+
+
+
+@app.route("/<int:id>")
+def list(id):
+    seznam = db.session.query(user_film)
+    user_film_list = []
+    for film in seznam:
+        if film[0] == id:
+            user_film_list.append(Film.query.get(film[1]))
+    print(user_film_list)
+    this_user = User.query.get(id)
+    return render_template("user_list.html",films=user_film_list,uzivatel=this_user.name)
 
 
 
 
 #TODO udělat koláčový graf , naučit se jak udělat graf z SQL
 """
-1. zjistit jak získat data z databáze
-2. zjistit jak udělat vizualizaci dat
-3. stránku nastylovat tak aby tam bylo možné vložit statistiky, koláče a tak
-4. Vytvořit stránku s žebříčkem/statistikou uživatelů.
+1. zjistit jak získat data z databáze ----------------------------------------------------------ok
+2. zjistit jak udělat vizualizaci dat-----------------------------------------------------------ok
+3. stránku nastylovat tak aby tam bylo možné vložit statistiky, koláče a tak----------dodělat
+4. Vytvořit stránku s žebříčkem/statistikou uživatelů.-------------------------------- možná ok?
 5. po kliknutí na uživatele se zobrazí jeho databáze avšak bez možností mazat či upravovat
 """
 
