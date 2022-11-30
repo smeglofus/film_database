@@ -1,10 +1,36 @@
 {% extends '/base.html' %}
 {% block head %}
-<style>
-html, body {
-    height: 100%;
-}
-</style>
+  <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script type="text/javascript">
+      google.charts.load('current', {'packages':['bar']});
+      google.charts.setOnLoadCallback(drawStuff);
+
+      function drawStuff() {
+        var data = new google.visualization.arrayToDataTable([
+          ['Movie', 'Number'],
+          {% for i in range(5) %}
+          ["{{ names[i] }}", {{ times[i] }}],
+          {% endfor %}
+        ]);
+
+        var options = {
+          width: 900,
+          legend: { position: 'none' },
+          chart: {
+            title: 'Nejčastější výskyt v databázi'},
+          axes: {
+            x: {
+              0: { side: 'top', label: 'Počet výskytů'} // Top x-axis.
+            }
+          },
+          bar: { groupWidth: "60%" }
+        };
+
+        var chart = new google.charts.Bar(document.getElementById('top_x_div'));
+        // Convert the Classic options to Material options.
+        chart.draw(data, google.charts.Bar.convertOptions(options));
+      };
+    </script>
 {% endblock %}
 
 {% block styles %}
@@ -12,7 +38,8 @@ html, body {
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Nunito+Sans:300,400,700">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Poppins:300,400,700">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+
 {% endblock %}
 
 
@@ -21,8 +48,11 @@ html, body {
 <div class="container">
 <h1>Tady budou statistiky</h1>
   <p style="color: white;">
-    Zatím je tu top 5 filmů
+    Zatím je tu prdlačka
+
   </p>
+   <div id="top_x_div" style="width: 600px; height: 600px; text-align: center; margin: 100px;">
+   </div>
   <ul>
   {% for i in range(5) %}
     <li style="color: grey;">

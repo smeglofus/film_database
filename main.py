@@ -272,7 +272,8 @@ def stats():
 1. zjistit jak získat data z databáze
 2. zjistit jak udělat vizualizaci dat
 3. stránku nastylovat tak aby tam bylo možné vložit statistiky, koláče a tak
-
+4. Vytvořit stránku s žebříčkem/statistikou uživatelů.
+5. po kliknutí na uživatele se zobrazí jeho databáze avšak bez možností mazat či upravovat
 """
 
 
