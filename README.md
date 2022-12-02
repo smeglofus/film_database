@@ -12,7 +12,7 @@ Film database is an web application written in Python using the Flask web framew
 Film data are from [themoviedb.org](https://www.themoviedb.org/) and scrapped from [ČSFD](https://www.csfd.cz/) with BeautifulSoup4.
 
 
-If you sign up, you can add films to your users database, which will be saved in SQLalchemy database. 
+If you sign up, you can add films to your users database, which will be saved in SQLite database. 
 
 
 [![fotka](https://user-images.githubusercontent.com/115080043/202891628-eadbe048-01fa-4c22-9e8c-4e3779931882.jpg)](https://youtu.be/wTnv6FAykDY)
