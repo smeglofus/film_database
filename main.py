@@ -16,33 +16,29 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
-def find_score(look_for):
+def find_score(look_for,rok):
     """
     :param look_for: exact name of film you look for
     :return: scrapped score of film on CSFD
     """
-    options = Options()
-    options.add_experimental_option("detach", True)
-
-    driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()),
-                              options=options)
-    driver.get(f"https://www.csfd.cz/hledat/?q={look_for}")
+    options = webdriver.ChromeOptions()
+    options.add_argument('--no-sandbox')
+    options.add_argument("--headless")
+    options.add_argument("--disable-gpu")
+    driver = webdriver.Chrome(options=options)
+    driver.get(f"https://www.google.com/search?q={look_for}+{rok}+csfd")
 
     try:
-        cookie = WebDriverWait(driver, 10).until(
-            EC.presence_of_element_located((By.XPATH, '//*[@id="didomi-notice-agree-button"]'))
-        )
-        cookies = driver.find_element(By.XPATH, '//*[@id="didomi-notice-agree-button"]').click()
-        film_search = WebDriverWait(driver, 10).until(
-            EC.presence_of_element_located((By.XPATH, '//*[@id="snippet--containerFilms"]/article[1]/figure/a'))
-        )
-        film_search = driver.find_element(By.XPATH, '//*[@id="snippet--containerFilms"]/article[1]/figure/a').click()
-        rating = driver.find_element(By.XPATH,
-                                     '//*[@id="page-wrapper"]/div/div[1]/aside/div[1]/div[2]/div[1]').text.strip("%")
-        print(rating)
+        # cookie = WebDriverWait(driver, 3).until(
+        #      EC.presence_of_element_located((By.XPATH, '//*[@id="W0wltc"]/div'))
+        #  )
+        # cookies = driver.find_element(By.XPATH, '//*[@id="W0wltc"]/div').click()
+        rating = driver.find_element(By.XPATH, '//*[@id="rso"]/div[1]/div/div/div[1]/div/div/div[3]/div/span[1]').text.strip("%Rating:")
+        finalni = ''.join(i for i in rating if i.isdigit())
+        final = finalni[:2]
     finally:
-        driver.quit()
-    return rating
+        pass
+    return final
 
 #app settings
 app = Flask(__name__)
@@ -237,8 +233,8 @@ def add_film(id):
         }
         data = requests.get(find_movie, params=parameters)
         film_data = data.json()
-        score = find_score(look_for=film_data["original_title"])
         year = film_data["release_date"].split("-")
+        score = find_score(look_for=film_data["original_title"], rok=year[0])
         film = Film(id=id, title=film_data["original_title"], year=year[0],
                     img_url=f"https://image.tmdb.org/t/p/w500//{film_data['poster_path']}",
                     description=film_data["overview"], rating=score)
@@ -253,7 +249,7 @@ def add_film(id):
 
 @app.route("/stats")
 def stats():
-
+    # TODO napiš dokumentaci a uprav výstupy v databázi
     # sežeň filmy z databáze
     times = []
     names = []
@@ -276,10 +272,11 @@ def stats():
 @app.route("/<int:id>")
 def list(id):
     seznam = db.session.query(user_film)
-    user_film_list = []
+    user_film_list = [[],[]]
     for film in seznam:
         if film[0] == id:
-            user_film_list.append(Film.query.get(film[1]))
+            user_film_list[0].append(Film.query.get(film[1]))
+            user_film_list[1].append(film[2])
     print(user_film_list)
     this_user = User.query.get(id)
     return render_template("user_list.html",films=user_film_list,uzivatel=this_user.name)

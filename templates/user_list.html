@@ -18,7 +18,7 @@
 
 
 </div>
- {% for film in films %}
+ {% for film in films[0] %}
 
   <div class="card" >
     <div class="front" style="background-image: url('{{film.img_url}}');">
@@ -31,7 +31,7 @@
             <label style="color: black">{{film.rating}}</label>
           <i class="fas fa-star star"></i>
         </div>
-          <p class="review">{{film.review}}</p>
+          <p class="review">{{ films[1][films[0].index(film)] }}</p>
         <p class="overview">
              {{film.description}}
         </p>
