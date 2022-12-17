@@ -59,7 +59,8 @@ db = SQLAlchemy(app)
 # M:M relationship database
 user_film = db.Table("user_film",
                      db.Column("user_id", db.Integer, db.ForeignKey("user.id")),
-                     db.Column("film_id", db.Integer, db.ForeignKey("film.id"))
+                     db.Column("film_id", db.Integer, db.ForeignKey("film.id")),
+                     db.Column("user_comment", db.String)
                      )
 class Film(db.Model):
     id = db.Column(db.Integer, primary_key=True, unique=True)
@@ -69,7 +70,6 @@ class Film(db.Model):
     rating = db.Column(db.Integer, nullable=True)
     review = db.Column(db.String(1000), nullable=True, unique=False)
     img_url = db.Column(db.String, nullable=False)
-
 
 
 @login_manager.user_loader
@@ -96,10 +96,11 @@ def home():
     all_films_id = db.session.query(Film.id).distinct()
     try:
         seznam = db.session.query(user_film)
-        user_film_list = []
+        user_film_list = [[],[]]
         for film in seznam:
             if film[0] == current_user.id:
-                user_film_list.append(film[1])
+                user_film_list[0].append(film[1])
+                user_film_list[1].append(film[2])
         print(user_film_list)
     except AttributeError:
         user_film_list = all_films_id
@@ -170,10 +171,11 @@ def edit(id):
     :param id: id of film in database Film you want to edit review
     :return: edited film, redirect to home
     """
-    film = Film.query.get(id)
+    film= Film.query.get(id)
     if request.form:
-        film.review = request.form.get("edit")
-        db.session.commit()
+        rew = request.form.get("edit")
+        db.engine.execute(f"UPDATE user_film SET user_comment = '{rew}' WHERE user_id = {current_user.id} AND film_id = {id}")
+
         return redirect(url_for("home"))
     return render_template("edit.html",movie=film)
 
@@ -282,7 +284,8 @@ def list(id):
     this_user = User.query.get(id)
     return render_template("user_list.html",films=user_film_list,uzivatel=this_user.name)
 
-
+# with app.app_context():
+#     db.create_all()
 
 
 #TODO udělat koláčový graf , naučit se jak udělat graf z SQL
@@ -291,9 +294,8 @@ def list(id):
 2. zjistit jak udělat vizualizaci dat-----------------------------------------------------------ok
 3. stránku nastylovat tak aby tam bylo možné vložit statistiky, koláče a tak----------dodělat
 4. Vytvořit stránku s žebříčkem/statistikou uživatelů.-------------------------------- možná ok?
-5. po kliknutí na uživatele se zobrazí jeho databáze avšak bez možností mazat či upravovat
+5. po kliknutí na uživatele se zobrazí jeho databáze avšak bez možností mazat či upravovat   ok
 """
-
 
 
 if __name__ == "__main__":

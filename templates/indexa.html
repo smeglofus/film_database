@@ -26,7 +26,8 @@
 </div>
 {% if current_user.is_authenticated %}
  {% for film in films %}
-    {% if film.id in user_films %}
+    {% if film.id in user_films[0] %}
+
 
   <div class="card" >
     <div class="front" style="background-image: url('{{film.img_url}}');">
@@ -39,7 +40,7 @@
             <label style="color: black">{{film.rating}}</label>
           <i class="fas fa-star star"></i>
         </div>
-          <p class="review">{{film.review}}</p>
+          <p class="review">{{ user_films[1][user_films[0].index(film.id)] }}</p>
         <p class="overview">
              {{film.description}}
         </p>
