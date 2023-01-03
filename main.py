@@ -278,8 +278,11 @@ def list(id):
             user_film_list[0].append(Film.query.get(film[1]))
             user_film_list[1].append(film[2])
     print(user_film_list)
+
     this_user = User.query.get(id)
-    return render_template("user_list.html",films=user_film_list,uzivatel=this_user.name)
+    sortedByName = [sorted(user_film_list[0], key=lambda x: x.rating, reverse=True)] + [user_film_list[1]]
+    print(sortedByName)
+    return render_template("user_list.html",films=sortedByName,uzivatel=this_user.name)
 
 # with app.app_context():
 #     db.create_all()
