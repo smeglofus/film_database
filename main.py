@@ -9,6 +9,7 @@ from flask_bootstrap import Bootstrap
 from flask_sqlalchemy import SQLAlchemy
 import requests
 from selenium import webdriver
+
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
 from webdriver_manager.chrome import ChromeDriverManager
@@ -23,19 +24,23 @@ def find_score(look_for,rok):
     """
     options = webdriver.ChromeOptions()
     options.add_argument('--no-sandbox')
+    options.add_experimental_option("detach", True)
     options.add_argument("--headless")
     options.add_argument("--disable-gpu")
     driver = webdriver.Chrome(options=options)
     driver.get(f"https://www.google.com/search?q={look_for}+{rok}+csfd")
-
     try:
-        # cookie = WebDriverWait(driver, 3).until(
-        #      EC.presence_of_element_located((By.XPATH, '//*[@id="W0wltc"]/div'))
-        #  )
-        # cookies = driver.find_element(By.XPATH, '//*[@id="W0wltc"]/div').click()
-        rating = driver.find_element(By.XPATH, '//*[@id="rso"]/div[1]/div/div/div[1]/div/div/div[3]/div/span[1]').text.strip("%Rating:")
-        finalni = ''.join(i for i in rating if i.isdigit())
-        final = finalni[:2]
+        cookie = WebDriverWait(driver, 3).until(
+            EC.presence_of_element_located((By.XPATH, '//*[@id="W0wltc"]/div'))
+        )
+        cookies = driver.find_element(By.XPATH, '//*[@id="W0wltc"]/div').click()
+        source = driver.page_source
+        final = 0
+        word = "Hodnocení"
+        if word in source:
+            index = source.index("Hodnocení")
+            final = source[index + 11:index + 13]
+            print(final)
     finally:
         pass
     return final
@@ -46,7 +51,8 @@ login_manager = LoginManager()
 login_manager.init_app(app)
 app.config['SECRET_KEY'] = '920a9b69fb94acb591d1ceaf7cfbe3eaa1ca16b1346dea3694bafbf1ca10e532'
 Bootstrap(app)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///movies.db'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://sql7588422:wMcIYFWNix@sql7.freesqldatabase.com:3306/sql7588422'
+
 BASE_WEB = "https://api.themoviedb.org/3/search/movie?"
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
